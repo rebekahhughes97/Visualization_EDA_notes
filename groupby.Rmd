@@ -1,89 +1,211 @@
 ---
-title: "Data Import"
+title: "Exploratory Analysis"
 output: github_document
 ---
 
-
-```{r}
+```{r setup, include=FALSE}
 library(tidyverse)
-library(readxl)
-library(haven)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_color_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
 ```
 
-## Read in some data
-
-Read in the litters dataset.
+## Load the weather dataset
 
 ```{r}
-litters_df = read_csv ("./data/FAS_litters.csv")
-litters_df = janitor :: clean_names (litters_df)
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728", "USC00519397", "USS0023B17S"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2017-01-01",
+    date_max = "2017-12-31") %>%
+  mutate(
+    name = recode(
+      id, 
+      USW00094728 = "CentralPark_NY", 
+      USC00519397 = "Waikiki_HA",
+      USS0023B17S = "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10,
+    month = lubridate::floor_date(date, unit = "month")) %>%
+  select(name, id, everything())
 ```
 
-## Take a look at the data
-
-Printing in the console
+## group_by
 
 ```{r}
-litters_df
+weather_df %>% 
+  group_by(name, month) %>% 
+  ungroup()
 ```
 
-Show the first 6 rows or the last 6 rows
-```{r}
-head (litters_df)
-tail (litters_df)
-```
+## Counting things
 
-```{r}
-skimr:: skim (litters_df)
-```
-Could also use view function to look at the dataset in the console.
-
-## Options to read csv
-
-Check out `?read.csv()` for more information
+Count month and name observations:
 
 ```{r}
-litters_df= read_csv ("./data/FAS_litters.csv", skip = 10, col_names = FALSE)
-litters_df= read_csv ("./data/FAS_litters.csv", na = c("", ".", "NA", 999))
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarize(nobs = n())
 ```
 
-## Other file formats
-
-# Excel
-
-Read in excel file
-Look at `?read_excel()` for more information
+we can also use `count()`
 
 ```{r}
-mlb_df = read_excel ("./data/mlb11.xlsx", range = "A1:F7")
+weather_df %>% 
+  count(name, month, name = "n_obs")
 ```
 
-# SAS
+Never use base r's `table`! The result is not helpful and to get to the table function you have to do extra steps.
 
-Read in SAS file
+```{r, eval=FALSE}
+weather_df %>% 
+  pull (month) %>% 
+  table()
+```
+
+Other helpful counters:
 
 ```{r}
-pulse_df = read_sas ("./data/public_pulse_data.sas7bdat")
+weather_df %>% 
+  group_by(month) %>% 
+  summarize(
+    n_obs = n(),
+    n_days = n_distinct(date)
+  )
 ```
 
-## Comparison with Base R
-
-What about `read.csv` ?
-Don't use this ever. Always use the _ notation
+## A digression on 2x2 tables
 
 ```{r}
-litters_base = read.csv ("./data/FAS_litters.csv")
-litters_readr = read_csv("./data/FAS_litters.csv")
+weather_df %>% 
+  filter(name != "Waikiki_HA") %>% 
+  mutate(
+    cold = case_when(
+      tmax < 5 ~ "cold",
+      tmax >= 5 ~ "not_cold",
+      TRUE ~ ""
+    )
+  ) %>% 
+  group_by(name, cold) %>% 
+  summarize(count = n())
 
-litters_base
-litters_readr
+weather_df %>% 
+  filter(name != "Waikiki_HA") %>% 
+  mutate(
+    cold = case_when(
+      tmax < 5 ~ "cold",
+      tmax >= 5 ~ "not_cold",
+      TRUE ~ ""
+    )
+  ) %>% 
+  janitor::tabyl(name, cold)
 ```
 
-## Exporting data
+## General summaries
 
-Export the mlb sub-table
+You can do lots of summaries:
 
 ```{r}
-write_csv (mlb_df, "./data/mlb_subtable.csv")
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarize(
+    mean_tmax = mean(tmax, na.rm = TRUE),
+    mean_prcp = mean(prcp, na.rm = TRUE),
+    median_tmin = median(tmin, na.rm = TRUE)
+  )
 ```
+
+This is a data frame! So you can make a plot:
+
+```{r}
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarize(
+    mean_tmax = mean(tmax, na.rm = TRUE),
+    mean_prcp = mean(prcp, na.rm = TRUE),
+    median_tmin = median(tmin, na.rm = TRUE)
+  ) %>% 
+  ggplot(aes(x = month, y = mean_tmax, color = name)) +
+  geom_point() +
+  geom_line()
+```
+
+Suppose you want to summarise multiple columns in the same way:
+
+```{r}
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarize(across(prcp:tmin, mean))
+```
+
+Reminder: some of the data results are easier to read in another format.
+
+```{r}
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarize(mean_tmax = mean(tmax)) %>% 
+  pivot_wider(
+    names_from = name,
+    values_from = mean_tmax
+  ) %>% 
+  knitr::kable(digits = 1)
+```
+
+##`group_by` and `mutate`
+
+```{r}
+weather_df %>% 
+  group_by(name) %>% 
+  mutate(
+    mean_tmax = mean(tmax, na.rm = TRUE),
+    centered_tmax = tmax - mean_tmax
+  ) %>% 
+  ggplot(aes(x = date, y = centered_tmax, color = name)) +
+  geom_point()
+```
+
+What about window functions?
+
+Rank the coldest days and filter by the coldest day and then switch the order:
+
+```{r}
+weather_df %>% 
+  group_by(name, month) %>% 
+  mutate(temp_rank = min_rank(tmax)) %>% 
+  filter(temp_rank == 1)
+
+weather_df %>% 
+  group_by(name, month) %>% 
+  mutate(temp_rank = min_rank(desc(tmax)))
+```
+
+Lag:
+
+```{r}
+weather_df %>% 
+  group_by(name) %>% 
+  mutate(temp_change = tmax - lag(tmax)) %>% 
+  summarize(
+    temp_change_max = max(temp_change, na.rm = TRUE),
+    temp_change_sd = sd(temp_change, na.rm = TRUE)
+  )
+```
+
+## Quick note
+
+Summarize only get's you so far.
 
