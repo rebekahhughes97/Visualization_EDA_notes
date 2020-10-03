@@ -1,17 +1,28 @@
----
-title: "Visualization with ggplot pt. 2"
-output: github_document
----
+Visualization with ggplot pt. 2
+================
 
-
-```{r}
+``` r
 library(tidyverse)
+```
+
+    ## ── Attaching packages ────────────────────────────────────────────────────── tidyverse 1.3.0 ──
+
+    ## ✓ ggplot2 3.3.2     ✓ purrr   0.3.4
+    ## ✓ tibble  3.0.3     ✓ dplyr   1.0.2
+    ## ✓ tidyr   1.1.2     ✓ stringr 1.4.0
+    ## ✓ readr   1.3.1     ✓ forcats 0.5.0
+
+    ## ── Conflicts ───────────────────────────────────────────────────────── tidyverse_conflicts() ──
+    ## x dplyr::filter() masks stats::filter()
+    ## x dplyr::lag()    masks stats::lag()
+
+``` r
 library(patchwork)
 ```
 
 ## Load weather dataset
 
-```{r}
+``` r
 weather_df = 
   rnoaa::meteo_pull_monitors(
     c("USW00094728", "USC00519397", "USS0023B17S"),
@@ -29,17 +40,43 @@ weather_df =
   select(name, id, everything())
 ```
 
+    ## Registered S3 method overwritten by 'hoardr':
+    ##   method           from
+    ##   print.cache_info httr
+
+    ## using cached file: /Users/rebekahhughes/Library/Caches/R/noaa_ghcnd/USW00094728.dly
+
+    ## date created (size, mb): 2020-10-03 09:23:25 (7.522)
+
+    ## file min/max dates: 1869-01-01 / 2020-10-31
+
+    ## using cached file: /Users/rebekahhughes/Library/Caches/R/noaa_ghcnd/USC00519397.dly
+
+    ## date created (size, mb): 2020-10-03 09:23:31 (1.699)
+
+    ## file min/max dates: 1965-01-01 / 2020-03-31
+
+    ## using cached file: /Users/rebekahhughes/Library/Caches/R/noaa_ghcnd/USS0023B17S.dly
+
+    ## date created (size, mb): 2020-10-03 09:23:34 (0.88)
+
+    ## file min/max dates: 1999-09-01 / 2020-10-31
+
 ## Remember this plot
 
-```{r}
+``` r
 weather_df %>% 
   ggplot(aes(x = tmin, y = tmax, color = name)) +
   geom_point(alpha = .5)
 ```
 
-##Labels
+    ## Warning: Removed 15 rows containing missing values (geom_point).
 
-```{r}
+![](ggplot2_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+\#\#Labels
+
+``` r
 weather_df %>% 
   ggplot(aes(x = tmin, y = tmax, color = name)) +
   geom_point(alpha = .5) +
@@ -51,11 +88,15 @@ weather_df %>%
   )
 ```
 
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+![](ggplot2_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
 ## Scales
 
 Start with the same plot:
 
-```{r}
+``` r
  weather_df %>% 
   ggplot(aes(x = tmin, y = tmax, color = name)) +
   geom_point(alpha = .5) +
@@ -74,9 +115,17 @@ Start with the same plot:
   )
 ```
 
+    ## Warning in self$trans$transform(x): NaNs produced
+
+    ## Warning: Transformation introduced infinite values in continuous y-axis
+
+    ## Warning: Removed 90 rows containing missing values (geom_point).
+
+![](ggplot2_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
 Look at color scales:
 
-```{r}
+``` r
  weather_df %>% 
   ggplot(aes(x = tmin, y = tmax, color = name)) +
   geom_point(alpha = .5) +
@@ -91,7 +140,11 @@ Look at color scales:
     h = c(100, 300))
 ```
 
-```{r}
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+![](ggplot2_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
  weather_df %>% 
   ggplot(aes(x = tmin, y = tmax, color = name)) +
   geom_point(alpha = .5) +
@@ -106,11 +159,15 @@ Look at color scales:
     discrete = TRUE)
 ```
 
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+![](ggplot2_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
 ## Themes
 
 Shift the legend and change overall theme:
 
-```{r}
+``` r
  weather_df %>% 
   ggplot(aes(x = tmin, y = tmax, color = name)) +
   geom_point(alpha = .5) +
@@ -124,7 +181,13 @@ Shift the legend and change overall theme:
     name = "Location",
     discrete = TRUE) +
   theme(legend.position = "bottom")
+```
 
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+![](ggplot2_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
  weather_df %>% 
   ggplot(aes(x = tmin, y = tmax, color = name)) +
   geom_point(alpha = .5) +
@@ -138,7 +201,13 @@ Shift the legend and change overall theme:
     name = "Location",
     discrete = TRUE) +
    theme_minimal()
- 
+```
+
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+![](ggplot2_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
+
+``` r
   weather_df %>% 
   ggplot(aes(x = tmin, y = tmax, color = name)) +
   geom_point(alpha = .5) +
@@ -152,7 +221,13 @@ Shift the legend and change overall theme:
     name = "Location",
     discrete = TRUE) +
   theme_classic()
-  
+```
+
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+![](ggplot2_files/figure-gfm/unnamed-chunk-8-3.png)<!-- -->
+
+``` r
   weather_df %>% 
   ggplot(aes(x = tmin, y = tmax, color = name)) +
   geom_point(alpha = .5) +
@@ -166,7 +241,13 @@ Shift the legend and change overall theme:
     name = "Location",
     discrete = TRUE) +
   ggthemes::theme_excel()
-  
+```
+
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+![](ggplot2_files/figure-gfm/unnamed-chunk-8-4.png)<!-- -->
+
+``` r
  weather_df %>% 
   ggplot(aes(x = tmin, y = tmax, color = name)) +
   geom_point(alpha = .5) +
@@ -183,11 +264,16 @@ Shift the legend and change overall theme:
   theme(legend.position = "bottom")
 ```
 
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+![](ggplot2_files/figure-gfm/unnamed-chunk-8-5.png)<!-- -->
+
 ## Setting options
 
-Would do this to set the visual appearance at the beginning of your document.
+Would do this to set the visual appearance at the beginning of your
+document.
 
-```{r, eval=FALSE}
+``` r
 library(tidyverse)
 
 knitr::opts_chunk$set(
@@ -209,7 +295,7 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ## Data args in geom
 
-```{r}
+``` r
 central_park =
   weather_df %>% 
   filter(name == "CentralPark_NY")
@@ -223,20 +309,28 @@ ggplot(data = waikiki, aes(x = date, y = tmax, color = name)) +
   geom_line(data = central_park)
 ```
 
+    ## Warning: Removed 3 rows containing missing values (geom_point).
+
+![](ggplot2_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
 ## Patchwork
 
 Remember faceting?
 
-```{r}
+``` r
 weather_df %>% 
   ggplot(aes(x = tmin, fill = name)) +
   geom_density(alpha = .5) +
   facet_grid(. ~ name)
 ```
 
-What happens when you want multi-panel plots but can't facet?
+    ## Warning: Removed 15 rows containing non-finite values (stat_density).
 
-```{r}
+![](ggplot2_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+What happens when you want multi-panel plots but can’t facet?
+
+``` r
 tmax_tmin_plot =
   weather_df %>% 
   ggplot(aes(x = tmin, y = tmax, color = name)) +
@@ -259,11 +353,21 @@ tmax_dates_plt =
 (tmax_tmin_plot + precip_dens_plot) / tmax_dates_plt
 ```
 
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+
+    ## Warning: Removed 3 rows containing non-finite values (stat_smooth).
+
+    ## Warning: Removed 3 rows containing missing values (geom_point).
+
+![](ggplot2_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
 ## Data manipulation
 
 Control the factors:
 
-```{r}
+``` r
 weather_df %>% 
   mutate(
     name = factor(name),
@@ -273,9 +377,13 @@ weather_df %>%
   geom_violin(alpha = .5)
 ```
 
+    ## Warning: Removed 3 rows containing non-finite values (stat_ydensity).
+
+![](ggplot2_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
 What if I wanted densities for tmin and tmax simultaneously?
 
-```{r}
+``` r
 weather_df %>% 
   filter(name == "CentralPark_NY") %>% 
   pivot_longer(
@@ -285,7 +393,11 @@ weather_df %>%
   ) %>% 
   ggplot(aes(x = temperatures, fill = observation)) +
   geom_density(alpha = .5)
+```
 
+![](ggplot2_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
 weather_df %>% 
   pivot_longer(
     tmax:tmin,
@@ -297,21 +409,51 @@ weather_df %>%
   facet_grid(. ~ name)
 ```
 
+    ## Warning: Removed 18 rows containing non-finite values (stat_density).
+
+![](ggplot2_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+
 ## Revisit the pups
 
 Data from the fetal alcohol syndrome study.
 
-```{r}
+``` r
 pups_data =
   read_csv("./data/FAS_pups.csv") %>% 
   janitor::clean_names() %>% 
   mutate(sex = recode(sex, `1` ="male", `2`="female"))
+```
 
+    ## Parsed with column specification:
+    ## cols(
+    ##   `Litter Number` = col_character(),
+    ##   Sex = col_double(),
+    ##   `PD ears` = col_double(),
+    ##   `PD eyes` = col_double(),
+    ##   `PD pivot` = col_double(),
+    ##   `PD walk` = col_double()
+    ## )
+
+``` r
 litters_df =
   read_csv("./data/FAS_litters.csv") %>% 
   janitor::clean_names() %>% 
   separate(group, into = c("dose", "day_of_tx"), sep = 3)
+```
 
+    ## Parsed with column specification:
+    ## cols(
+    ##   Group = col_character(),
+    ##   `Litter Number` = col_character(),
+    ##   `GD0 weight` = col_double(),
+    ##   `GD18 weight` = col_double(),
+    ##   `GD of Birth` = col_double(),
+    ##   `Pups born alive` = col_double(),
+    ##   `Pups dead @ birth` = col_double(),
+    ##   `Pups survive` = col_double()
+    ## )
+
+``` r
 fas_df =
   left_join(pups_data, litters_df, by = "litter_number")
 
@@ -328,3 +470,5 @@ fas_df %>%
   geom_violin() +
   facet_grid(day_of_tx ~ outcome)
 ```
+
+![](ggplot2_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
