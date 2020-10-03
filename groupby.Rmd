@@ -1,0 +1,89 @@
+---
+title: "Data Import"
+output: github_document
+---
+
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(haven)
+```
+
+## Read in some data
+
+Read in the litters dataset.
+
+```{r}
+litters_df = read_csv ("./data/FAS_litters.csv")
+litters_df = janitor :: clean_names (litters_df)
+```
+
+## Take a look at the data
+
+Printing in the console
+
+```{r}
+litters_df
+```
+
+Show the first 6 rows or the last 6 rows
+```{r}
+head (litters_df)
+tail (litters_df)
+```
+
+```{r}
+skimr:: skim (litters_df)
+```
+Could also use view function to look at the dataset in the console.
+
+## Options to read csv
+
+Check out `?read.csv()` for more information
+
+```{r}
+litters_df= read_csv ("./data/FAS_litters.csv", skip = 10, col_names = FALSE)
+litters_df= read_csv ("./data/FAS_litters.csv", na = c("", ".", "NA", 999))
+```
+
+## Other file formats
+
+# Excel
+
+Read in excel file
+Look at `?read_excel()` for more information
+
+```{r}
+mlb_df = read_excel ("./data/mlb11.xlsx", range = "A1:F7")
+```
+
+# SAS
+
+Read in SAS file
+
+```{r}
+pulse_df = read_sas ("./data/public_pulse_data.sas7bdat")
+```
+
+## Comparison with Base R
+
+What about `read.csv` ?
+Don't use this ever. Always use the _ notation
+
+```{r}
+litters_base = read.csv ("./data/FAS_litters.csv")
+litters_readr = read_csv("./data/FAS_litters.csv")
+
+litters_base
+litters_readr
+```
+
+## Exporting data
+
+Export the mlb sub-table
+
+```{r}
+write_csv (mlb_df, "./data/mlb_subtable.csv")
+```
+
